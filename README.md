@@ -248,30 +248,6 @@ This app's core rule: **never fabricate a ticket ID, a citation, or a send confi
 
 ---
 
-## 🌐 Deploy
-
-**Frontend → Vercel**, **backend → Render** (free tier). `frontend/vercel.json` has a harmless SPA-rewrite fallback; this app has no client-side router so it's not load-bearing.
-
-1. Push this repo to GitHub (already public, for judge/mentor review).
-2. **Backend:** Render → New → Blueprint, pointing at this repo (reads `render.yaml`: root `backend`, start `uvicorn app.main:app --host 0.0.0.0 --port $PORT`, health check `/health`). Fill in the env vars flagged `sync: false`.
-3. **Frontend:** Vercel → import repo, root directory `frontend`, env var `VITE_API_BASE=https://<your-render-service>.onrender.com/api`.
-4. **Smoke test:** open the Vercel URL → **Refresh emails**. If a provider isn't connected on the Render host yet, its status pill shows gray and the UI explains what failed — it still loads.
-5. **Demo fallback:** if venue Wi-Fi or an API is down mid-demo, fall back to a pre-recorded clip of one full successful local run rather than fighting it live.
-
-> Swytchcode's OAuth session lives on whichever machine ran `swytchcode auth connect` (see *Honesty by design* #2 for why this matters for Jira specifically). For the live jury round, running the backend on your own laptop is the most reliable option; use the deployed frontend against that API if you can tunnel it, or submit this repo plus a demo video of the local happy path.
-
-### Deployability checklist
-
-- [x] Fresh clone + env vars → runs locally
-- [x] Frontend build uses `VITE_API_BASE`, no hardcoded `localhost`
-- [x] Backend binds `0.0.0.0` + `$PORT` via `render.yaml`
-- [x] `CORS_ORIGINS` configurable via env
-- [x] Bare `/health` for Render's health check, alongside `/api/health`
-- [x] Secrets only in `.env` (gitignored) / platform env vars
-- [ ] Public frontend ↔ public backend, fully live — depends on completing `swytchcode auth connect` on the deployed host
-
----
-
 ## Non-goals
 
 No multi-language support, no auto-send without approval, no bulk inbox processing, no SLA routing, no persistent accounts/login.
