@@ -401,12 +401,74 @@ button:disabled {
 }
 
 /* Queue (left) */
-.queue {
+.queue-column {
   border-right: 1px solid var(--border);
   background: var(--panel);
   display: flex;
   flex-direction: column;
   overflow: hidden;
+}
+
+.queue {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.recent-cases {
+  flex-shrink: 0;
+  max-height: 220px;
+  overflow-y: auto;
+  border-top: 1px solid var(--border);
+  padding: 0.6rem 0.75rem;
+}
+
+.recent-cases-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 0.4rem;
+}
+
+.recent-cases ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.recent-cases li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.case-subject {
+  font-size: 0.82rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.case-tags {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.chip-ticket {
+  background: var(--accent);
+}
+
+.chip-sent {
+  background: var(--success);
 }
 
 .queue-search {

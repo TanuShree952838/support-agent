@@ -2112,6 +2112,217 @@
       "summary": "Search issues and pull requests",
       "type": "method"
     },
+    "gmail.user.labels.create": {
+      "desc": "Creates a label. For more information, see [Manage labels](https://developers.google.com/workspace/gmail/api/guides/labels).",
+      "inputs": [
+        {
+          "userId": {
+            "LOCATION": "path",
+            "TYPE": "STRING"
+          }
+        },
+        {
+          "body": {
+            "LOCATION": "body",
+            "REQUIRED": false,
+            "TYPE": "OBJECT",
+            "schema": {
+              "properties": {
+                "color": {
+                  "properties": {
+                    "backgroundColor": {
+                      "required": false,
+                      "type": "string"
+                    },
+                    "textColor": {
+                      "required": false,
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                },
+                "id": {
+                  "required": false,
+                  "type": "string"
+                },
+                "labelListVisibility": {
+                  "required": false,
+                  "type": "string"
+                },
+                "messageListVisibility": {
+                  "required": false,
+                  "type": "string"
+                },
+                "messagesTotal": {
+                  "required": false,
+                  "type": "integer"
+                },
+                "messagesUnread": {
+                  "required": false,
+                  "type": "integer"
+                },
+                "name": {
+                  "required": false,
+                  "type": "string"
+                },
+                "threadsTotal": {
+                  "required": false,
+                  "type": "integer"
+                },
+                "threadsUnread": {
+                  "required": false,
+                  "type": "integer"
+                },
+                "type": {
+                  "required": false,
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "integration": "Gmail.gmail@v1",
+      "method_hash": "64eb722831acdd1d0e27b3fbccf93f76ff4ba16ed2783bb77bc0b53b8952e5c8",
+      "output": {
+        "schema": {
+          "properties": {
+            "color": {
+              "properties": {
+                "backgroundColor": {
+                  "required": false,
+                  "type": "string"
+                },
+                "textColor": {
+                  "required": false,
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "id": {
+              "required": false,
+              "type": "string"
+            },
+            "labelListVisibility": {
+              "required": false,
+              "type": "string"
+            },
+            "messageListVisibility": {
+              "required": false,
+              "type": "string"
+            },
+            "messagesTotal": {
+              "required": false,
+              "type": "integer"
+            },
+            "messagesUnread": {
+              "required": false,
+              "type": "integer"
+            },
+            "name": {
+              "required": false,
+              "type": "string"
+            },
+            "threadsTotal": {
+              "required": false,
+              "type": "integer"
+            },
+            "threadsUnread": {
+              "required": false,
+              "type": "integer"
+            },
+            "type": {
+              "required": false,
+              "type": "string"
+            }
+          }
+        },
+        "status": 200
+      },
+      "summary": "Creates a label",
+      "type": "method"
+    },
+    "gmail.user.labels.get": {
+      "desc": "Lists all labels in the user's mailbox. For more information, see [Manage labels](https://developers.google.com/workspace/gmail/api/guides/labels).",
+      "inputs": [
+        {
+          "userId": {
+            "LOCATION": "path",
+            "TYPE": "STRING"
+          }
+        }
+      ],
+      "integration": "Gmail.gmail@v1",
+      "method_hash": "320de1a33d89366d7237bca5ed8ff3a989f7a3f5d1acc0278bd285558656b674",
+      "output": {
+        "schema": {
+          "properties": {
+            "labels": {
+              "items": {
+                "properties": {
+                  "color": {
+                    "properties": {
+                      "backgroundColor": {
+                        "required": false,
+                        "type": "string"
+                      },
+                      "textColor": {
+                        "required": false,
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
+                  },
+                  "id": {
+                    "required": false,
+                    "type": "string"
+                  },
+                  "labelListVisibility": {
+                    "required": false,
+                    "type": "string"
+                  },
+                  "messageListVisibility": {
+                    "required": false,
+                    "type": "string"
+                  },
+                  "messagesTotal": {
+                    "required": false,
+                    "type": "integer"
+                  },
+                  "messagesUnread": {
+                    "required": false,
+                    "type": "integer"
+                  },
+                  "name": {
+                    "required": false,
+                    "type": "string"
+                  },
+                  "threadsTotal": {
+                    "required": false,
+                    "type": "integer"
+                  },
+                  "threadsUnread": {
+                    "required": false,
+                    "type": "integer"
+                  },
+                  "type": {
+                    "required": false,
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              },
+              "required": false,
+              "type": "array"
+            }
+          }
+        },
+        "status": 200
+      },
+      "summary": "Lists all labels in the user's mailbox",
+      "type": "method"
+    },
     "gmail.user.messages.get": {
       "desc": "Lists the messages in the user's mailbox. For more information, see [List Gmail messages](https://developers.google.com/workspace/gmail/api/guides/list-messages).",
       "inputs": [
@@ -2468,6 +2679,195 @@
         "status": 200
       },
       "summary": "Gets the specified message.",
+      "type": "method"
+    },
+    "gmail.user.modify.create1": {
+      "desc": "Modifies the labels applied to the thread. This applies to all messages in the thread. For more information, see [Manage threads](https://developers.google.com/workspace/gmail/api/guides/threads).",
+      "inputs": [
+        {
+          "userId": {
+            "LOCATION": "path",
+            "TYPE": "STRING"
+          }
+        },
+        {
+          "id": {
+            "LOCATION": "path",
+            "TYPE": "STRING"
+          }
+        },
+        {
+          "body": {
+            "LOCATION": "body",
+            "REQUIRED": false,
+            "TYPE": "OBJECT",
+            "schema": {
+              "properties": {
+                "addLabelIds": {
+                  "required": false,
+                  "type": "[]STRING"
+                },
+                "removeLabelIds": {
+                  "required": false,
+                  "type": "[]STRING"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "integration": "Gmail.gmail@v1",
+      "method_hash": "6222fe67ea129b0365b54e323c6fb66e03ff9eaf2fad2ec413cc757337ed1aa7",
+      "output": {
+        "schema": {
+          "properties": {
+            "historyId": {
+              "required": false,
+              "type": "string"
+            },
+            "id": {
+              "required": false,
+              "type": "string"
+            },
+            "messages": {
+              "items": {
+                "properties": {
+                  "classificationLabelValues": {
+                    "items": {
+                      "properties": {
+                        "fields": {
+                          "items": {
+                            "properties": {
+                              "fieldId": {
+                                "required": false,
+                                "type": "string"
+                              },
+                              "selection": {
+                                "required": false,
+                                "type": "string"
+                              }
+                            },
+                            "type": "object"
+                          },
+                          "required": false,
+                          "type": "array"
+                        },
+                        "labelId": {
+                          "required": false,
+                          "type": "string"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "required": false,
+                    "type": "array"
+                  },
+                  "historyId": {
+                    "required": false,
+                    "type": "string"
+                  },
+                  "id": {
+                    "required": false,
+                    "type": "string"
+                  },
+                  "internalDate": {
+                    "required": false,
+                    "type": "string"
+                  },
+                  "labelIds": {
+                    "required": false,
+                    "type": "[]STRING"
+                  },
+                  "payload": {
+                    "properties": {
+                      "body": {
+                        "properties": {
+                          "attachmentId": {
+                            "required": false,
+                            "type": "string"
+                          },
+                          "data": {
+                            "required": false,
+                            "type": "string"
+                          },
+                          "size": {
+                            "required": false,
+                            "type": "integer"
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "filename": {
+                        "required": false,
+                        "type": "string"
+                      },
+                      "headers": {
+                        "items": {
+                          "properties": {
+                            "name": {
+                              "required": false,
+                              "type": "string"
+                            },
+                            "value": {
+                              "required": false,
+                              "type": "string"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        "required": false,
+                        "type": "array"
+                      },
+                      "mimeType": {
+                        "required": false,
+                        "type": "string"
+                      },
+                      "partId": {
+                        "required": false,
+                        "type": "string"
+                      },
+                      "parts": {
+                        "items": {
+                          "properties": {},
+                          "type": "object"
+                        },
+                        "required": false,
+                        "type": "array"
+                      }
+                    },
+                    "type": "object"
+                  },
+                  "raw": {
+                    "required": false,
+                    "type": "string"
+                  },
+                  "sizeEstimate": {
+                    "required": false,
+                    "type": "integer"
+                  },
+                  "snippet": {
+                    "required": false,
+                    "type": "string"
+                  },
+                  "threadId": {
+                    "required": false,
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              },
+              "required": false,
+              "type": "array"
+            },
+            "snippet": {
+              "required": false,
+              "type": "string"
+            }
+          }
+        },
+        "status": 200
+      },
+      "summary": "Modifies the labels applied to the thread",
       "type": "method"
     },
     "gmail.user.send.create1": {
@@ -3256,6 +3656,44 @@
         "status": 200
       },
       "summary": "Get all projects",
+      "type": "method"
+    },
+    "notion.comment.create": {
+      "desc": "Creates a comment in a page or existing discussion thread.",
+      "inputs": [
+        {
+          "body": {
+            "LOCATION": "body",
+            "REQUIRED": false,
+            "TYPE": "OBJECT",
+            "schema": {
+              "properties": {
+                "parent": {
+                  "required": true,
+                  "type": "object"
+                },
+                "rich_text": {
+                  "required": true,
+                  "type": "[]ANY"
+                }
+              },
+              "required": [
+                "parent",
+                "rich_text"
+              ]
+            }
+          }
+        }
+      ],
+      "integration": "Notion.notion@2.0.0",
+      "method_hash": "3f29238deecb16d5c8e80eb295717b6fbc59c62f385bb2b4d71338fa1c74f0ca",
+      "output": {
+        "schema": {
+          "type": "any"
+        },
+        "status": 200
+      },
+      "summary": "Create comment",
       "type": "method"
     },
     "notion.markdown.get": {

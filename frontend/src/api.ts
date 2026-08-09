@@ -31,6 +31,7 @@ export interface EmailMessage {
   snippet: string;
   body: string;
   load_error?: boolean;
+  rfc_message_id?: string;
 }
 
 export type ConnectionStatus = Record<"gmail" | "notion" | "jira" | "resend" | "github", boolean>;
@@ -47,6 +48,7 @@ export interface Classification {
 }
 
 export interface KbHit {
+  page_id: string;
   title: string;
   url: string;
   excerpt: string;
@@ -74,6 +76,17 @@ export interface TimelineEvent {
   detail: Record<string, unknown>;
 }
 
+export interface Case {
+  email_id: string;
+  subject?: string;
+  category?: string;
+  confidence?: number;
+  ticket_key?: string | null;
+  sent?: boolean;
+  channel?: string;
+  updated_at: string;
+}
+
 export const api = {
   inbox: (query: string) => request<EmailMessage[]>(`/inbox?query=${encodeURIComponent(query)}`),
 
@@ -86,7 +99,7 @@ export const api = {
     }),
 
   kbSearch: (email_id: string, query_text: string) =>
-    request<{ hits: KbHit[]; status: string }>("/kb-search", {
+    request<{ hits: KbHit[]; status: string; duplicates: DuplicateIssue[] }>("/kb-search", {
       method: "POST",
       body: JSON.stringify({ email_id, query_text }),
     }),
@@ -103,11 +116,21 @@ export const api = {
       body: JSON.stringify({ email_id, summary, description, entities }),
     }),
 
-  send: (email_id: string, to: string, subject: string, body: string) =>
+  send: (
+    email_id: string,
+    to: string,
+    subject: string,
+    body: string,
+    thread_id?: string,
+    reply_to_message_id?: string,
+    kb_page_id?: string,
+  ) =>
     request<{ channel: string; status: string; id?: string; error?: string }>("/send", {
       method: "POST",
-      body: JSON.stringify({ email_id, to, subject, body }),
+      body: JSON.stringify({ email_id, to, subject, body, thread_id, reply_to_message_id, kb_page_id }),
     }),
 
   timeline: (email_id: string) => request<TimelineEvent[]>(`/timeline?email_id=${encodeURIComponent(email_id)}`),
+
+  cases: () => request<Case[]>("/cases"),
 };

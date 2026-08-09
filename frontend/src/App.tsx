@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 import {
   api,
+  type Case,
   type Classification,
   type DuplicateIssue,
   type EmailMessage,
@@ -13,6 +14,7 @@ import { humanizeError } from "./errors";
 import TopBar from "./components/TopBar";
 import EmailQueue from "./components/EmailQueue";
 import CaseView from "./components/CaseView";
+import RecentCases from "./components/RecentCases";
 
 function replySubject(subject: string): string {
   const stripped = subject.replace(/^(re:\s*)+/i, "").trim();
@@ -43,6 +45,15 @@ export default function App() {
 
   const [timeline, setTimeline] = useState<TimelineEvent[]>([]);
   const [toast, setToast] = useState<string | null>(null);
+  const [cases, setCases] = useState<Case[]>([]);
+
+  useEffect(() => {
+    api.cases().then(setCases).catch(() => {});
+  }, []);
+
+  function refreshCases() {
+    api.cases().then(setCases).catch(() => {});
+  }
 
   async function refreshEmails() {
     setLoadingInbox(true);
@@ -65,6 +76,7 @@ export default function App() {
       const cls = await api.classify(email.id, email.subject, email.body);
       setClassification(cls);
       if (cls.category === "bug") setEscalateChecked(true);
+      refreshCases();
 
       const kb = await api.kbSearch(email.id, cls.entities.summary || email.subject);
       setKbHits(kb.hits);
@@ -160,13 +172,22 @@ export default function App() {
       }
 
       const replyTo = selected.from.match(/<(.+)>/)?.[1] || selected.from;
-      const result = await api.send(selected.id, replyTo, replySubject(selected.subject), draftText);
+      const result = await api.send(
+        selected.id,
+        replyTo,
+        replySubject(selected.subject),
+        draftText,
+        selected.thread_id,
+        selected.rfc_message_id,
+        kbHits[0]?.page_id,
+      );
       setSendResult(result);
       if (result.status !== "sent") {
         setToast(humanizeError(result.error || "Couldn't send the reply.", "Gmail/Resend"));
       }
 
       setTimeline(await api.timeline(selected.id));
+      refreshCases();
     } catch (e) {
       setToast(humanizeError((e as Error).message));
     } finally {
@@ -214,16 +235,19 @@ export default function App() {
       )}
 
       <main className="workspace">
-        <EmailQueue
-          query={query}
-          onQueryChange={setQuery}
-          emails={emails}
-          selectedId={selected?.id ?? null}
-          loading={loadingInbox}
-          error={inboxError}
-          onRefresh={refreshEmails}
-          onSelect={selectEmail}
-        />
+        <div className="queue-column">
+          <EmailQueue
+            query={query}
+            onQueryChange={setQuery}
+            emails={emails}
+            selectedId={selected?.id ?? null}
+            loading={loadingInbox}
+            error={inboxError}
+            onRefresh={refreshEmails}
+            onSelect={selectEmail}
+          />
+          <RecentCases cases={cases} />
+        </div>
         <CaseView
           selected={selected}
           analyzing={analyzing}

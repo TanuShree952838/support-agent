@@ -7,9 +7,13 @@ _STATE_FILE = Path(__file__).resolve().parent.parent / "data" / "state.json"
 
 def _load() -> dict:
     if not _STATE_FILE.exists():
-        return {"events": [], "tickets": {}}
+        return {"events": [], "tickets": {}, "cases": {}}
     with open(_STATE_FILE) as f:
-        return json.load(f)
+        state = json.load(f)
+    state.setdefault("events", [])
+    state.setdefault("tickets", {})
+    state.setdefault("cases", {})
+    return state
 
 
 def _save(state: dict) -> None:
@@ -49,3 +53,19 @@ def set_ticket(email_id: str, ticket: dict) -> None:
     state = _load()
     state["tickets"][email_id] = ticket
     _save(state)
+
+
+def update_case(email_id: str, **fields) -> dict:
+    state = _load()
+    case = state["cases"].setdefault(email_id, {"email_id": email_id})
+    case.update(fields)
+    case["updated_at"] = datetime.now(timezone.utc).isoformat()
+    _save(state)
+    return case
+
+
+def get_cases() -> list[dict]:
+    state = _load()
+    cases = list(state["cases"].values())
+    cases.sort(key=lambda c: c.get("updated_at", ""), reverse=True)
+    return cases

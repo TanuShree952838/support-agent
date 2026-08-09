@@ -56,6 +56,7 @@ def search_kb(query_text: str, top_n: int = 3) -> list[dict]:
 
         scored.append(
             {
+                "page_id": page["page_id"],
                 "title": page["title"],
                 "url": page["url"],
                 "excerpt": excerpt_text,
@@ -65,3 +66,15 @@ def search_kb(query_text: str, top_n: int = 3) -> list[dict]:
 
     scored.sort(key=lambda h: h["score"], reverse=True)
     return scored[:top_n]
+
+
+def write_back_comment(page_id: str, text: str) -> dict:
+    return exec_tool(
+        "notion.comment.create",
+        {
+            "body": {
+                "parent": {"page_id": page_id},
+                "rich_text": [{"type": "text", "text": {"content": text}}],
+            }
+        },
+    )

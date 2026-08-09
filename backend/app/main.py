@@ -95,6 +95,9 @@ class ClassifyRequest(BaseModel):
 def classify(req: ClassifyRequest):
     result = classify_email(req.subject, req.body)
     store.add_event(req.email_id, "classify", "done", result)
+    store.update_case(
+        req.email_id, subject=req.subject, category=result["category"], confidence=result["confidence"]
+    )
     return result
 
 
@@ -109,10 +112,16 @@ def kb_search(req: KbSearchRequest):
         hits = notion_kb.search_kb(req.query_text)
         status = "found" if hits else "not_found"
         store.add_event(req.email_id, "kb_search", status, {"hits": hits})
-        return {"hits": hits, "status": status}
     except SwytchcodeError as e:
         store.add_event(req.email_id, "kb_search", "error", {"error": e.message})
         raise HTTPException(status_code=502, detail={"error": e.message, "category": e.category})
+
+    try:
+        duplicates = github.search_duplicate_issues(req.query_text)
+    except SwytchcodeError:
+        duplicates = []
+
+    return {"hits": hits, "status": status, "duplicates": duplicates}
 
 
 class DraftRequest(BaseModel):
@@ -163,6 +172,7 @@ def escalate(req: EscalateRequest):
         }
 
     store.set_ticket(req.email_id, ticket)
+    store.update_case(req.email_id, ticket_key=ticket.get("key"))
     store.add_event(req.email_id, "escalate", "done", {"ticket": ticket, "duplicates": duplicates})
     return {"ticket": ticket, "duplicates": duplicates, "reused": False}
 
@@ -172,15 +182,41 @@ class SendRequest(BaseModel):
     to: str
     subject: str
     body: str
+    thread_id: str | None = None
+    reply_to_message_id: str | None = None
+    kb_page_id: str | None = None
 
 
 @app.post("/api/send")
 def send_update(req: SendRequest):
-    result = send.send_customer_update(req.to, req.subject, req.body)
+    result = send.send_customer_update(req.to, req.subject, req.body, req.thread_id, req.reply_to_message_id)
     store.add_event(req.email_id, "send", result["status"], result)
+    store.update_case(req.email_id, sent=result["status"] == "sent", channel=result["channel"])
+
+    if result["status"] == "sent" and req.thread_id:
+        try:
+            gmail.mark_resolved(req.thread_id)
+            store.add_event(req.email_id, "resolve_thread", "done", {"thread_id": req.thread_id})
+        except SwytchcodeError as e:
+            store.add_event(req.email_id, "resolve_thread", "failed", {"error": e.message})
+
+    if result["status"] == "sent" and req.kb_page_id:
+        ticket = store.get_ticket(req.email_id)
+        note = f"Referenced to resolve a support case" + (f" (ticket {ticket['key']})" if ticket and ticket.get("key") else "") + "."
+        try:
+            notion_kb.write_back_comment(req.kb_page_id, note)
+            store.add_event(req.email_id, "kb_writeback", "done", {"page_id": req.kb_page_id})
+        except SwytchcodeError as e:
+            store.add_event(req.email_id, "kb_writeback", "failed", {"error": e.message})
+
     return result
 
 
 @app.get("/api/timeline")
 def timeline(email_id: str | None = None):
     return store.get_events(email_id)
+
+
+@app.get("/api/cases")
+def cases():
+    return store.get_cases()
