@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: support-agent-api
+    runtime: python
+    rootDir: backend
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: CORS_ORIGINS
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-flash-latest
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: JIRA_PROJECT_KEY
+        sync: false
+      - key: JIRA_SITE_DOMAIN
+        sync: false
+      - key: NOTION_KB_PAGE_IDS
+        sync: false
+      - key: SUPPORT_FROM_EMAIL
+        sync: false
+      - key: RESEND_FROM_EMAIL
+        sync: false
+      - key: GITHUB_REPO
+        sync: false

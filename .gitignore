@@ -1,0 +1,27 @@
+.env
+.env.local
+node_modules/
+dist/
+*.tsbuildinfo
+.DS_Store
+
+# Swytchcode local state — regenerate with `swytchcode get` + `swytchcode add`, never commit fetched bundles
+.swytchcode/mcp.pid
+.swytchcode/workspace.json
+.swytchcode/integrations/
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Runtime state (contains real email/case content from local testing)
+backend/data/*.json
+
+# Unrelated Swytchcode example scaffold from initial exploration, not part of this app
+/star-github-1.0.0/
+
+# Editor / session artifacts, not project source
+.specstory/
+.cursor/
+.cursorindexingignore
