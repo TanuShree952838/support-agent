@@ -244,10 +244,4 @@ This app's core rule: **never fabricate a ticket ID, a citation, or a send confi
 2. Postgres-backed log store once cross-ticket history matters (today: flat JSON file).
 3. Resolve the Jira OAuth/cloudId routing issue upstream with Swytchcode, or switch to Basic Auth (email + API token) as a documented fallback.
 4. GitHub duplicate-issue search surfaced earlier in the flow (today: only shown after ticket creation).
-5. Multi-language support (explicit non-goal for this MVP).
-
----
-
-## Non-goals
-
-No multi-language support, no auto-send without approval, no bulk inbox processing, no SLA routing, no persistent accounts/login.
+5. Multi-language support.
