@@ -36,6 +36,13 @@ Track 1 build for **Build with Swytchcode** (KNOTiC).
 - One state-driven **Next step** card with exactly one primary action at a time.
 - A plain-language **"What AI can do"** checklist and **activity trail** — no raw tool names, no log timestamps as the primary UI.
 
+**Closing the loop, not just answering once**
+- Replies actually **thread into the original Gmail conversation** (real `threadId` + `In-Reply-To`/`References` headers), not a disconnected new message.
+- On resolution, the thread is auto-labeled **"Resolved by Agent"** and archived out of the inbox — a real Gmail write, not just a UI status.
+- GitHub duplicate-issue search runs **during analysis**, not after ticket creation — you see "3 similar issues already exist" before deciding to escalate.
+- Resolutions write a **comment back onto the cited Notion KB page**, so the knowledge base accumulates evidence of what it actually helped resolve.
+- A **case history** panel (backed by a real `/api/cases` endpoint) shows everything the agent has touched today, not just the currently-open case.
+
 ---
 
 ## 🧱 Tech Stack
