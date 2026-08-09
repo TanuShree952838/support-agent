@@ -43,6 +43,13 @@ Track 1 build for **Build with Swytchcode** (KNOTiC).
 - Resolutions write a **comment back onto the cited Notion KB page**, so the knowledge base accumulates evidence of what it actually helped resolve.
 - A **case history** panel (backed by a real `/api/cases` endpoint) shows everything the agent has touched today, not just the currently-open case.
 
+**Deeper context, real coordination**
+- Classification reads the **entire email thread** (`gmail.user.threads.get1`), not just the latest message — a multi-message back-and-forth gets full context, not a snapshot.
+- Attached file names are detected from the real email payload and factored into triage.
+- Every classification also scores **urgency** (low/medium/high) alongside category and confidence, shown as a badge.
+- Jira tickets carry a real **priority field** mapped from that urgency.
+- When a duplicate GitHub issue already exists, the agent posts a **real comment on it** flagging the new case — actual cross-team coordination, not just a link.
+
 ---
 
 ## 🧱 Tech Stack
