@@ -32,6 +32,7 @@ export interface EmailMessage {
   body: string;
   load_error?: boolean;
   rfc_message_id?: string;
+  attachments?: string[];
 }
 
 export type ConnectionStatus = Record<"gmail" | "notion" | "jira" | "resend" | "github", boolean>;
@@ -39,6 +40,7 @@ export type ConnectionStatus = Record<"gmail" | "notion" | "jira" | "resend" | "
 export interface Classification {
   category: "bug" | "billing" | "how_to" | "other";
   confidence: number;
+  urgency: "low" | "medium" | "high";
   reasoning: string;
   entities: {
     summary: string;
@@ -81,6 +83,7 @@ export interface Case {
   subject?: string;
   category?: string;
   confidence?: number;
+  urgency?: string;
   ticket_key?: string | null;
   sent?: boolean;
   channel?: string;
@@ -92,10 +95,10 @@ export const api = {
 
   status: () => request<ConnectionStatus>("/status"),
 
-  classify: (email_id: string, subject: string, body: string) =>
+  classify: (email_id: string, subject: string, body: string, thread_id?: string, attachments?: string[]) =>
     request<Classification>("/classify", {
       method: "POST",
-      body: JSON.stringify({ email_id, subject, body }),
+      body: JSON.stringify({ email_id, subject, body, thread_id, attachments }),
     }),
 
   kbSearch: (email_id: string, query_text: string) =>
@@ -110,10 +113,16 @@ export const api = {
       body: JSON.stringify({ email_id, subject, body, kb_hits }),
     }),
 
-  escalate: (email_id: string, summary: string, description: string, entities: Record<string, unknown>) =>
+  escalate: (
+    email_id: string,
+    summary: string,
+    description: string,
+    entities: Record<string, unknown>,
+    urgency?: string,
+  ) =>
     request<{ ticket: Ticket; duplicates: DuplicateIssue[]; reused: boolean; error?: string; error_category?: string }>("/escalate", {
       method: "POST",
-      body: JSON.stringify({ email_id, summary, description, entities }),
+      body: JSON.stringify({ email_id, summary, description, entities, urgency }),
     }),
 
   send: (

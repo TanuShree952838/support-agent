@@ -463,6 +463,24 @@ button:disabled {
   flex-wrap: wrap;
 }
 
+.chip-urgency-low {
+  background: #8a8f98;
+}
+
+.chip-urgency-medium {
+  background: var(--warn);
+}
+
+.chip-urgency-high {
+  background: var(--danger);
+}
+
+.case-attachments {
+  margin: 0.4rem 0 0;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
 .chip-ticket {
   background: var(--accent);
 }

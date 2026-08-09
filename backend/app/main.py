@@ -89,14 +89,27 @@ class ClassifyRequest(BaseModel):
     email_id: str
     subject: str
     body: str
+    thread_id: str | None = None
+    attachments: list[str] = []
 
 
 @app.post("/api/classify")
 def classify(req: ClassifyRequest):
-    result = classify_email(req.subject, req.body)
+    thread_context = []
+    if req.thread_id:
+        try:
+            thread_context = [m for m in gmail.get_thread(req.thread_id) if m["id"] != req.email_id]
+        except SwytchcodeError:
+            thread_context = []
+
+    result = classify_email(req.subject, req.body, thread_context, req.attachments)
     store.add_event(req.email_id, "classify", "done", result)
     store.update_case(
-        req.email_id, subject=req.subject, category=result["category"], confidence=result["confidence"]
+        req.email_id,
+        subject=req.subject,
+        category=result["category"],
+        confidence=result["confidence"],
+        urgency=result.get("urgency"),
     )
     return result
 
@@ -144,6 +157,7 @@ class EscalateRequest(BaseModel):
     description: str
     entities: dict = {}
     search_duplicates: bool = True
+    urgency: str | None = None
 
 
 @app.post("/api/escalate")
@@ -159,8 +173,19 @@ def escalate(req: EscalateRequest):
         except SwytchcodeError:
             duplicates = []
 
+    if duplicates:
+        try:
+            github.comment_on_issue(
+                duplicates[0]["number"],
+                f"Another support case just came in matching this issue: \"{req.summary}\". "
+                f"Flagging so engineering can prioritize/dedupe.",
+            )
+            store.add_event(req.email_id, "github_comment", "done", {"issue": duplicates[0]["number"]})
+        except SwytchcodeError as e:
+            store.add_event(req.email_id, "github_comment", "failed", {"error": e.message})
+
     try:
-        ticket = jira.create_issue(req.summary, req.description, req.entities)
+        ticket = jira.create_issue(req.summary, req.description, req.entities, req.urgency)
     except SwytchcodeError as e:
         store.add_event(req.email_id, "escalate", "failed", {"error": e.message, "category": e.category})
         return {

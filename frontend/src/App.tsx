@@ -73,7 +73,7 @@ export default function App() {
     setAnalyzing(true);
     setToast(null);
     try {
-      const cls = await api.classify(email.id, email.subject, email.body);
+      const cls = await api.classify(email.id, email.subject, email.body, email.thread_id, email.attachments);
       setClassification(cls);
       if (cls.category === "bug") setEscalateChecked(true);
       refreshCases();
@@ -130,6 +130,7 @@ export default function App() {
         classification.entities.summary || selected.subject,
         `${selected.subject}\n\n${selected.body}`,
         classification.entities,
+        classification.urgency,
       );
       setTicket(result.ticket);
       setDuplicates(result.duplicates);
@@ -160,6 +161,7 @@ export default function App() {
           classification.entities.summary || selected.subject,
           `${selected.subject}\n\n${selected.body}`,
           classification.entities,
+          classification.urgency,
         );
         setTicket(result.ticket);
         setDuplicates(result.duplicates);

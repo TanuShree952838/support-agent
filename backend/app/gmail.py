@@ -44,8 +44,17 @@ def _parse_date(raw_date: str) -> str:
         return raw_date
 
 
-def get_message(message_id: str) -> dict:
-    raw = exec_tool("gmail.user.messages.get1", {"userId": "me", "id": message_id, "format": "full"})
+def _attachments(payload: dict) -> list[str]:
+    names = []
+    for part in payload.get("parts", []) or []:
+        filename = part.get("filename")
+        if filename:
+            names.append(filename)
+        names.extend(_attachments(part))
+    return names
+
+
+def _message_to_dict(raw: dict) -> dict:
     headers = raw.get("payload", {}).get("headers", [])
     return {
         "id": raw["id"],
@@ -57,7 +66,18 @@ def get_message(message_id: str) -> dict:
         "snippet": raw.get("snippet", ""),
         "body": _decode_body(raw.get("payload", {})),
         "rfc_message_id": _header(headers, "Message-ID"),
+        "attachments": _attachments(raw.get("payload", {})),
     }
+
+
+def get_message(message_id: str) -> dict:
+    raw = exec_tool("gmail.user.messages.get1", {"userId": "me", "id": message_id, "format": "full"})
+    return _message_to_dict(raw)
+
+
+def get_thread(thread_id: str) -> list[dict]:
+    raw = exec_tool("gmail.user.threads.get1", {"userId": "me", "id": thread_id, "format": "full"})
+    return [_message_to_dict(m) for m in raw.get("messages", []) or []]
 
 
 def send_email(

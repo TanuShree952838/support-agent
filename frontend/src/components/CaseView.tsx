@@ -297,6 +297,9 @@ export default function CaseView({
               {categoryLabel(classification.category)} · {classification.confidence}%
             </span>
           )}
+          {classification && (
+            <span className={`chip chip-urgency-${classification.urgency}`}>{classification.urgency} urgency</span>
+          )}
         </div>
         <p className="case-next-line">Next: {nextStep.title}</p>
       </div>
@@ -343,6 +346,9 @@ export default function CaseView({
       <section className="case-section">
         <h3>Customer wrote</h3>
         <p className="case-body-text">{selected.body || selected.snippet}</p>
+        {selected.attachments && selected.attachments.length > 0 && (
+          <p className="case-attachments">📎 {selected.attachments.join(", ")}</p>
+        )}
       </section>
 
       {analyzing && !classification && (
