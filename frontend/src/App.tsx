@@ -9,12 +9,14 @@ import {
   type KbHit,
   type Ticket,
   type TimelineEvent,
+  type TraceEntry,
 } from "./api";
 import { humanizeError } from "./errors";
 import TopBar from "./components/TopBar";
 import EmailQueue from "./components/EmailQueue";
 import CaseView from "./components/CaseView";
 import RecentCases from "./components/RecentCases";
+import TechnicalTrace from "./components/TechnicalTrace";
 
 function replySubject(subject: string): string {
   const stripped = subject.replace(/^(re:\s*)+/i, "").trim();
@@ -46,13 +48,19 @@ export default function App() {
   const [timeline, setTimeline] = useState<TimelineEvent[]>([]);
   const [toast, setToast] = useState<string | null>(null);
   const [cases, setCases] = useState<Case[]>([]);
+  const [trace, setTrace] = useState<TraceEntry[]>([]);
 
   useEffect(() => {
     api.cases().then(setCases).catch(() => {});
+    api.trace().then(setTrace).catch(() => {});
   }, []);
 
   function refreshCases() {
     api.cases().then(setCases).catch(() => {});
+  }
+
+  function refreshTrace() {
+    api.trace().then(setTrace).catch(() => {});
   }
 
   async function refreshEmails() {
@@ -82,10 +90,11 @@ export default function App() {
       setKbHits(kb.hits);
       setKbStatus(kb.status);
 
-      const draft = await api.draft(email.id, email.subject, email.body, kb.hits);
+      const draft = await api.draft(email.id, email.subject, email.body, kb.hits, cls.urgency);
       setDraftText(draft.reply);
 
       setTimeline(await api.timeline(email.id));
+      refreshTrace();
     } catch (e) {
       setToast(humanizeError((e as Error).message));
     } finally {
@@ -190,6 +199,7 @@ export default function App() {
 
       setTimeline(await api.timeline(selected.id));
       refreshCases();
+      refreshTrace();
     } catch (e) {
       setToast(humanizeError((e as Error).message));
     } finally {
@@ -249,6 +259,7 @@ export default function App() {
             onSelect={selectEmail}
           />
           <RecentCases cases={cases} />
+          <TechnicalTrace entries={trace} />
         </div>
         <CaseView
           selected={selected}

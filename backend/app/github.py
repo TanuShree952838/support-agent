@@ -20,3 +20,9 @@ def comment_on_issue(issue_number: int, body: str) -> dict:
         "github.issue.comments.create",
         {"owner": owner, "repo": repo, "issue_number": issue_number, "body": {"body": body}},
     )
+
+
+def create_issue(title: str, body: str) -> dict:
+    owner, repo = settings.github_repo.split("/", 1)
+    result = exec_tool("github.issue.create", {"owner": owner, "repo": repo, "body": {"title": title, "body": body}})
+    return {"number": result.get("number"), "url": result.get("html_url")}

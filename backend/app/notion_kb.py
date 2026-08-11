@@ -51,6 +51,9 @@ def search_kb(query_text: str, top_n: int = 3) -> list[dict]:
         if score <= 0:
             continue
 
+        matched_tokens = query_tokens & (title_tokens | body_tokens)
+        confidence = round(100 * len(matched_tokens) / len(query_tokens))
+
         excerpt = page["markdown"].strip().splitlines()
         excerpt_text = " ".join(excerpt[1:4]).strip()[:280] if len(excerpt) > 1 else ""
 
@@ -61,6 +64,7 @@ def search_kb(query_text: str, top_n: int = 3) -> list[dict]:
                 "url": page["url"],
                 "excerpt": excerpt_text,
                 "score": score,
+                "confidence": confidence,
             }
         )
 

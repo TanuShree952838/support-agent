@@ -1,5 +1,6 @@
 import json
 import subprocess
+from datetime import datetime, timezone
 
 
 class SwytchcodeError(Exception):
@@ -10,7 +11,38 @@ class SwytchcodeError(Exception):
         self.retryable = retryable
 
 
+_trace: list[dict] = []
+_TRACE_LIMIT = 100
+
+
+def get_trace() -> list[dict]:
+    return list(reversed(_trace))
+
+
 def exec_tool(canonical_id: str, args: dict) -> dict:
+    try:
+        result = _exec_tool(canonical_id, args)
+        _trace.append(
+            {"timestamp": datetime.now(timezone.utc).isoformat(), "canonical_id": canonical_id, "status": "ok"}
+        )
+        if len(_trace) > _TRACE_LIMIT:
+            del _trace[: len(_trace) - _TRACE_LIMIT]
+        return result
+    except SwytchcodeError as e:
+        _trace.append(
+            {
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "canonical_id": canonical_id,
+                "status": "error",
+                "detail": e.message,
+            }
+        )
+        if len(_trace) > _TRACE_LIMIT:
+            del _trace[: len(_trace) - _TRACE_LIMIT]
+        raise
+
+
+def _exec_tool(canonical_id: str, args: dict) -> dict:
     payload = json.dumps({"tool": canonical_id, "args": args})
     result = subprocess.run(
         ["swytchcode", "exec", "--json"],

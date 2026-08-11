@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from . import gmail, github, jira, notion_kb, send, store
 from .config import settings
 from .llm import classify_email, draft_reply
-from .swytchcode import SwytchcodeError
+from .swytchcode import SwytchcodeError, get_trace
 
 app = FastAPI(title="Support Agent API")
 
@@ -142,11 +142,12 @@ class DraftRequest(BaseModel):
     subject: str
     body: str
     kb_hits: list[dict] = []
+    urgency: str | None = None
 
 
 @app.post("/api/draft")
 def draft(req: DraftRequest):
-    reply = draft_reply(req.subject, req.body, req.kb_hits)
+    reply = draft_reply(req.subject, req.body, req.kb_hits, req.urgency)
     store.add_event(req.email_id, "draft", "done", {"reply": reply})
     return {"reply": reply}
 
@@ -184,21 +185,49 @@ def escalate(req: EscalateRequest):
         except SwytchcodeError as e:
             store.add_event(req.email_id, "github_comment", "failed", {"error": e.message})
 
+    jira_error = None
+    ticket = None
     try:
         ticket = jira.create_issue(req.summary, req.description, req.entities, req.urgency)
+        ticket["via"] = "jira"
     except SwytchcodeError as e:
+        jira_error = e
         store.add_event(req.email_id, "escalate", "failed", {"error": e.message, "category": e.category})
+
+    if ticket is None and settings.github_repo:
+        try:
+            gh_issue = github.create_issue(req.summary, req.description)
+            ticket = {"key": f"GH-{gh_issue['number']}", "url": gh_issue["url"], "self": None, "via": "github"}
+            store.add_event(req.email_id, "escalate_fallback", "done", {"ticket": ticket})
+        except SwytchcodeError as e:
+            store.add_event(req.email_id, "escalate_fallback", "failed", {"error": e.message})
+
+    if ticket is None:
         return {
             "ticket": {"key": None, "url": None, "self": None},
             "duplicates": duplicates,
             "reused": False,
-            "error": e.message,
-            "error_category": e.category,
+            "error": jira_error.message if jira_error else "Could not create a ticket via Jira or GitHub.",
+            "error_category": jira_error.category if jira_error else "internal",
         }
 
     store.set_ticket(req.email_id, ticket)
     store.update_case(req.email_id, ticket_key=ticket.get("key"))
     store.add_event(req.email_id, "escalate", "done", {"ticket": ticket, "duplicates": duplicates})
+
+    if settings.internal_team_email:
+        try:
+            gmail.send_email(
+                settings.internal_team_email,
+                f"[Support Agent] New case escalated: {req.summary}",
+                f"{req.description}\n\nTicket: {ticket.get('url') or ticket.get('key')}\n"
+                f"Urgency: {req.urgency or 'unspecified'}",
+                settings.support_from_email,
+            )
+            store.add_event(req.email_id, "internal_notify", "done", {})
+        except SwytchcodeError as e:
+            store.add_event(req.email_id, "internal_notify", "failed", {"error": e.message})
+
     return {"ticket": ticket, "duplicates": duplicates, "reused": False}
 
 
@@ -245,3 +274,8 @@ def timeline(email_id: str | None = None):
 @app.get("/api/cases")
 def cases():
     return store.get_cases()
+
+
+@app.get("/api/trace")
+def trace(limit: int = 30):
+    return get_trace()[:limit]

@@ -22,6 +22,7 @@ class Settings(BaseSettings):
     github_repo: str = ""
     resend_from_email: str = ""
     cors_origins: str = "http://localhost:5173"
+    internal_team_email: str = ""
 
 
 settings = Settings()

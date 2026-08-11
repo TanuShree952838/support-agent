@@ -55,12 +55,21 @@ export interface KbHit {
   url: string;
   excerpt: string;
   score: number;
+  confidence: number;
 }
 
 export interface Ticket {
   key: string | null;
   url: string | null;
   self: string | null;
+  via?: string;
+}
+
+export interface TraceEntry {
+  timestamp: string;
+  canonical_id: string;
+  status: "ok" | "error";
+  detail?: string;
 }
 
 export interface DuplicateIssue {
@@ -107,10 +116,10 @@ export const api = {
       body: JSON.stringify({ email_id, query_text }),
     }),
 
-  draft: (email_id: string, subject: string, body: string, kb_hits: KbHit[]) =>
+  draft: (email_id: string, subject: string, body: string, kb_hits: KbHit[], urgency?: string) =>
     request<{ reply: string }>("/draft", {
       method: "POST",
-      body: JSON.stringify({ email_id, subject, body, kb_hits }),
+      body: JSON.stringify({ email_id, subject, body, kb_hits, urgency }),
     }),
 
   escalate: (
@@ -142,4 +151,6 @@ export const api = {
   timeline: (email_id: string) => request<TimelineEvent[]>(`/timeline?email_id=${encodeURIComponent(email_id)}`),
 
   cases: () => request<Case[]>("/cases"),
+
+  trace: (limit = 30) => request<TraceEntry[]>(`/trace?limit=${limit}`),
 };

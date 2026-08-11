@@ -54,6 +54,9 @@ Rules:
   human will follow up.
 - Never mention a ticket ID, a send confirmation, or any tool call - you are only drafting text \
   for a human to review.
+- If the customer's urgency is marked "high", open with a brief, direct acknowledgement that this \
+  is time-sensitive before the substance - do not pad it with extra apologies. If urgency is \
+  "low" or "medium", skip that and just answer plainly.
 - Plain text only, no markdown, no subject line, sign off as "Support Team"."""
 
 
@@ -93,7 +96,7 @@ def classify_email(
     return json.loads(raw)
 
 
-def draft_reply(subject: str, body: str, kb_hits: list[dict]) -> str:
+def draft_reply(subject: str, body: str, kb_hits: list[dict], urgency: str | None = None) -> str:
     if kb_hits:
         kb_block = "\n\n".join(
             f"KB title: {hit['title']}\nKB url: {hit['url']}\nKB excerpt: {hit['excerpt']}"
@@ -104,6 +107,7 @@ def draft_reply(subject: str, body: str, kb_hits: list[dict]) -> str:
 
     user_content = (
         f"Customer email subject: {subject}\n\nCustomer email body:\n{body}\n\n"
+        f"Customer urgency: {urgency or 'unspecified'}\n\n"
         f"Retrieved KB snippets:\n{kb_block}"
     )
     return _call_gemini(DRAFT_SYSTEM, user_content)

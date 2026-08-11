@@ -378,7 +378,10 @@ export default function CaseView({
             )}
             {kbHits.map((hit) => (
               <a key={hit.url} className="kb-hit" href={hit.url} target="_blank" rel="noreferrer">
-                <span className="kb-hit-title">{hit.title}</span>
+                <span className="kb-hit-title-row">
+                  <span className="kb-hit-title">{hit.title}</span>
+                  <span className="kb-hit-confidence">{hit.confidence}% match</span>
+                </span>
                 <span className="kb-hit-excerpt">{hit.excerpt}</span>
               </a>
             ))}
@@ -425,7 +428,7 @@ export default function CaseView({
         <section className="case-section case-result">
           {ticketOk && (
             <div className="result-row ok">
-              Ticket created:{" "}
+              Ticket created{ticket?.via === "github" ? " (via GitHub — Jira was unavailable)" : ""}:{" "}
               {ticket?.url ? (
                 <a href={ticket.url} target="_blank" rel="noreferrer">
                   {ticket.key}

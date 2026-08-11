@@ -766,16 +766,65 @@ button:disabled {
   border-color: var(--accent);
 }
 
+.kb-hit-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
 .kb-hit-title {
-  display: block;
   font-weight: 600;
   font-size: 0.88rem;
+}
+
+.kb-hit-confidence {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  flex-shrink: 0;
 }
 
 .kb-hit-excerpt {
   display: block;
   font-size: 0.8rem;
   color: var(--text-muted);
+}
+
+.technical-trace {
+  padding: 0.6rem 0.75rem;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.technical-trace ul {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  max-height: 160px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.technical-trace li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+}
+
+.technical-trace code {
+  font-family: ui-monospace, monospace;
+  color: var(--text);
+}
+
+.trace-ok .trace-status {
+  color: var(--success);
+}
+
+.trace-error .trace-status {
+  color: var(--danger);
 }
 
 textarea {
