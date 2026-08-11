@@ -50,6 +50,13 @@ Track 1 build for **Build with Swytchcode** (KNOTiC).
 - Jira tickets carry a real **priority field** mapped from that urgency.
 - When a duplicate GitHub issue already exists, the agent posts a **real comment on it** flagging the new case — actual cross-team coordination, not just a link.
 
+**Resilient by design, transparent about it**
+- When Jira ticket creation fails (see *Honesty by design* #2), the agent automatically creates a **real GitHub issue instead** — escalation still succeeds end-to-end, clearly labeled "via GitHub."
+- A **"Technical trace" panel** shows the exact Swytchcode canonical IDs called this session, with real success/failure status — the integration depth is visible, not just claimed.
+- Draft replies open with a brief, direct acknowledgement when urgency is high — no padding, no guessing.
+- KB hits show a real match-confidence percentage (fraction of query terms actually found in that page), not just ranking order.
+- Escalating a bug sends a real internal notification email to the team via the same working Gmail path, with the case summary and ticket/issue link.
+
 ---
 
 ## 🧱 Tech Stack
